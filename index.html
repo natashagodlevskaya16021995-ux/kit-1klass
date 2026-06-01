@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Русский язык — тест</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+    }
+
+    body {
+      background-image: url("images/bg.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #ffffff;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at top left, rgba(76, 222, 255, 0.22), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(179, 88, 255, 0.22), transparent 36%),
+        linear-gradient(180deg, rgba(2, 8, 32, 0.08), rgba(2, 8, 32, 0.32));
+    }
+
+    .панель-счета {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 50;
+      min-width: 230px;
+      padding: 14px 22px;
+      border: 2px solid rgba(184, 246, 255, 0.95);
+      border-radius: 24px;
+      background: rgba(7, 20, 64, 0.68);
+      backdrop-filter: blur(10px);
+      box-shadow:
+        0 0 16px rgba(83, 226, 255, 0.9),
+        inset 0 0 14px rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+      display: none;
+    }
+
+    .кнопка-старт {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 70;
+      transform: translate(-50%, -50%);
+      padding: 20px 46px;
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      border-radius: 999px;
+      background: linear-gradient(135deg, #34d8ff, #8d62ff, #ff74db);
+      color: #ffffff;
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow:
+        0 0 18px rgba(52, 216, 255, 0.95),
+        0 0 44px rgba(141, 98, 255, 0.82),
+        0 15px 32px rgba(0, 0, 0, 0.26);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      animation: дыханиеКнопки 1.9s ease-in-out infinite;
+    }
+
+    .кнопка-старт:hover {
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+
+    .летающий-объект {
+      width: 85px;
+      height: 85px;
+      position: absolute;
+      z-index: 10;
+      background-image: url("images/puz.png");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      cursor: pointer;
+      filter: drop-shadow(0 0 12px rgba(129, 233, 255, 0.9));
+      transition: transform 0.25s ease, filter 0.25s ease, opacity 0.25s ease;
+      animation: сияниеОбъекта 2.5s ease-in-out infinite;
+    }
+
+    .летающий-объект:hover {
+      transform: scale(1.12) rotate(6deg);
+      filter:
+        drop-shadow(0 0 18px rgba(255, 255, 255, 1))
+        drop-shadow(0 0 30px rgba(98, 230, 255, 0.95));
+    }
+
+    .перевернутый {
+      transform: scaleX(-1);
+    }
+
+    .перевернутый:hover {
+      transform: scaleX(-1) scale(1.12) rotate(-6deg);
+    }
+
+    .скрытый-объект {
+      opacity: 0;
+      transform: scale(0.25) rotate(22deg);
+      pointer-events: none;
+    }
+
+    .затемнение {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(2, 9, 35, 0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    .затемнение.показать {
+      display: flex;
+      animation: появлениеЗатемнения 0.32s ease forwards;
+    }
+
+    .плашка-задания,
+    .плашка-финала {
+      width: min(820px, 94vw);
+      position: relative;
+      padding: 32px 36px 34px;
+      border: 2px solid rgba(184, 246, 255, 0.92);
+      border-radius: 34px;
+      background:
+        linear-gradient(135deg, rgba(14, 39, 102, 0.92), rgba(44, 17, 104, 0.9)),
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 42%);
+      box-shadow:
+        0 0 20px rgba(81, 224, 255, 0.95),
+        0 0 58px rgba(150, 91, 255, 0.82),
+        0 0 92px rgba(255, 112, 226, 0.42),
+        inset 0 0 28px rgba(255, 255, 255, 0.16);
+      text-align: center;
+      overflow: hidden;
+      animation:
+        появлениеПлашки 0.48s cubic-bezier(.17,.84,.44,1) forwards,
+        неоновоеСияние 2.2s ease-in-out infinite;
+    }
+
+    .плашка-задания::before,
+    .плашка-финала::before {
+      content: "";
+      position: absolute;
+      inset: -65%;
+      background: conic-gradient(
+        from 0deg,
+        transparent,
+        rgba(90, 229, 255, 0.22),
+        transparent,
+        rgba(255, 127, 232, 0.22),
+        transparent
+      );
+      animation: вращениеСвета 6s linear infinite;
+    }
+
+    .плашка-задания > *,
+    .плашка-финала > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .метка {
+      display: none;
+      margin-bottom: 12px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      color: #cfffff;
+      font-size: 17px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.18);
+    }
+
+    .текст-задания {
+      margin: 6px auto 22px;
+      max-width: 720px;
+      color: #ffffff;
+      font-size: clamp(24px, 3.3vw, 38px);
+      line-height: 1.18;
+      font-weight: 900;
+      text-shadow: none;
+    }
+
+    .варианты-ответов {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin: 0 auto;
+      max-width: 720px;
+    }
+
+    .кнопка-ответа {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid rgba(255, 255, 255, 0.72);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      font-size: clamp(20px, 2.6vw, 28px);
+      font-weight: 900;
+      text-align: left;
+      cursor: pointer;
+      box-shadow:
+        inset 0 0 16px rgba(255, 255, 255, 0.13),
+        0 8px 18px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .кнопка-ответа:hover {
+      transform: translateY(-3px) scale(1.015);
+      background: rgba(255, 255, 255, 0.27);
+      box-shadow:
+        0 0 18px rgba(255, 255, 255, 0.6),
+        0 10px 24px rgba(0, 0, 0, 0.24);
+    }
+
+    .кнопка-ответа.верно {
+      border-color: rgba(152, 255, 185, 0.98);
+      background: rgba(22, 199, 106, 0.62);
+      box-shadow: 0 0 24px rgba(107, 255, 156, 0.82);
+    }
+
+    .кнопка-ответа.неверно {
+      border-color: rgba(255, 158, 190, 0.98);
+      background: rgba(222, 55, 117, 0.62);
+      box-shadow: 0 0 24px rgba(255, 105, 160, 0.82);
+    }
+
+    .результат-ответа {
+      min-height: 38px;
+      margin: 20px 0 4px;
+      color: #ffffff;
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 900;
+      text-shadow: 0 0 16px rgba(255, 255, 255, 0.9);
+    }
+
+    .кнопка-дальше,
+    .кнопка-повторить {
+      display: none;
+      margin-top: 12px;
+      padding: 14px 34px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffffff, #c7fbff);
+      color: #25408f;
+      font-size: 22px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow:
+        0 0 16px rgba(255, 255, 255, 0.85),
+        0 10px 22px rgba(0, 0, 0, 0.22);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .кнопка-дальше:hover,
+    .кнопка-повторить:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow:
+        0 0 22px rgba(255, 255, 255, 1),
+        0 12px 28px rgba(0, 0, 0, 0.28);
+    }
+
+    .картинка-победы {
+      width: min(260px, 58vw);
+      margin: 0 auto 12px;
+      display: block;
+      filter:
+        drop-shadow(0 0 16px rgba(255, 255, 255, 0.95))
+        drop-shadow(0 0 34px rgba(80, 226, 255, 0.95))
+        drop-shadow(0 0 54px rgba(255, 125, 229, 0.78));
+      animation:
+        покачиваниеПобеды 2.2s ease-in-out infinite,
+        сияниеПобеды 1.6s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    .заголовок-финала {
+      margin: 0 0 10px;
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 900;
+      text-shadow:
+        0 0 12px rgba(255, 255, 255, 0.95),
+        0 0 32px rgba(255, 119, 232, 0.9);
+    }
+
+    .текст-финала {
+      margin: 0 auto 12px;
+      max-width: 650px;
+      font-size: clamp(22px, 3vw, 32px);
+      line-height: 1.28;
+      font-weight: 900;
+      color: #eaffff;
+      text-shadow: 0 0 16px rgba(91, 224, 255, 0.86);
+    }
+
+    @keyframes дыханиеКнопки {
+      0%, 100% { box-shadow: 0 0 18px rgba(52, 216, 255, 0.95), 0 0 44px rgba(141, 98, 255, 0.82), 0 15px 32px rgba(0, 0, 0, 0.26); }
+      50% { box-shadow: 0 0 28px rgba(255, 255, 255, 1), 0 0 64px rgba(255, 116, 219, 0.94), 0 16px 36px rgba(0, 0, 0, 0.3); }
+    }
+
+    @keyframes сияниеОбъекта {
+      0%, 100% { filter: drop-shadow(0 0 10px rgba(129, 233, 255, 0.82)); }
+      50% { filter: drop-shadow(0 0 24px rgba(255, 255, 255, 1)) drop-shadow(0 0 30px rgba(255, 125, 229, 0.8)); }
+    }
+
+    @keyframes появлениеЗатемнения {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes появлениеПлашки {
+      from { opacity: 0; transform: translateY(28px) scale(0.88); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes неоновоеСияние {
+      0%, 100% { box-shadow: 0 0 20px rgba(81, 224, 255, 0.95), 0 0 58px rgba(150, 91, 255, 0.82), 0 0 92px rgba(255, 112, 226, 0.42), inset 0 0 28px rgba(255, 255, 255, 0.16); }
+      50% { box-shadow: 0 0 28px rgba(255, 255, 255, 0.96), 0 0 76px rgba(81, 224, 255, 0.9), 0 0 112px rgba(255, 112, 226, 0.62), inset 0 0 34px rgba(255, 255, 255, 0.22); }
+    }
+
+    @keyframes вращениеСвета {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes покачиваниеПобеды {
+      0%, 100% { transform: rotate(-4deg) translateY(0) scale(1); }
+      50% { transform: rotate(4deg) translateY(-8px) scale(1.04); }
+    }
+
+    @keyframes сияниеПобеды {
+      0%, 100% { filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 34px rgba(80, 226, 255, 0.95)) drop-shadow(0 0 54px rgba(255, 125, 229, 0.78)); }
+      50% { filter: drop-shadow(0 0 24px rgba(255, 255, 255, 1)) drop-shadow(0 0 50px rgba(80, 226, 255, 1)) drop-shadow(0 0 72px rgba(255, 125, 229, 0.96)); }
+    }
+
+    @media (max-width: 640px) {
+      .летающий-объект {
+        width: 59px;
+        height: 59px;
+      }
+
+      .панель-счета {
+        top: 12px;
+        left: 12px;
+        min-width: 180px;
+        font-size: 17px;
+        padding: 10px 14px;
+      }
+
+      .плашка-задания,
+      .плашка-финала {
+        padding: 26px 18px 28px;
+        border-radius: 28px;
+      }
+
+      .кнопка-ответа {
+        padding: 14px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="панель-счета" id="панельСчета">Верно: 0 из 15</div>
+  <button class="кнопка-старт" id="кнопкаСтарт">Начать игру</button>
+
+  <div class="затемнение" id="окноЗадания">
+    <div class="плашка-задания">
+      <div class="метка" id="номерВопроса">Вопрос 1 из 15</div>
+      <div class="текст-задания" id="текстВопроса"></div>
+      <div class="варианты-ответов" id="вариантыОтветов"></div>
+      <div class="результат-ответа" id="результатОтвета"></div>
+      <button class="кнопка-дальше" id="кнопкаДальше">Продолжить</button>
+    </div>
+  </div>
+
+  <div class="затемнение" id="окноФинала">
+    <div class="плашка-финала">
+      <img class="картинка-победы" src="images/win.png" alt="Победа" />
+      <h1 class="заголовок-финала">Молодец!</h1>
+      <p class="текст-финала" id="итоговыйТекст">Ты прошёл тест!</p>
+      <button class="кнопка-повторить" id="кнопкаПовторить">Играть снова</button>
+    </div>
+  </div>
+
+  <script>
+    const задания = [
+      {
+        вопрос: "Бабушка рассказывает внукам сказку. Она пользуется:",
+        варианты: ["а) устной речью", "б) письменной речью"],
+        правильный: 0
+      },
+      {
+        вопрос: "Что такое текст?",
+        варианты: [
+          "а) Это любые предложения, следующие одно за другим",
+          "б) Это несколько предложений, связанных по смыслу"
+        ],
+        правильный: 1
+      },
+      {
+        вопрос: "Сколько букв в русском алфавите?",
+        варианты: ["а) 30", "б) 33", "в) 35"],
+        правильный: 1
+      },
+      {
+        вопрос: "Сколько гласных звуков в слове «герой»?",
+        варианты: ["а) три", "б) два"],
+        правильный: 1
+      },
+      {
+        вопрос: "Сколько согласных звуков в слове «урожай»?",
+        варианты: ["а) три", "б) два", "в) четыре"],
+        правильный: 0
+      },
+      {
+        вопрос: "Какие буквы указывают на мягкость согласных звуков?",
+        варианты: ["а) А, Э, О, Ы, У", "б) Я, Е, Ё, И, Ю"],
+        правильный: 1
+      },
+      {
+        вопрос: "В каком слове есть мягкие согласные звуки?",
+        варианты: ["а) лук", "б) окно", "в) осень"],
+        правильный: 2
+      },
+      {
+        вопрос: "Сколько звуков в слове «зверь»?",
+        варианты: ["а) пять", "б) четыре"],
+        правильный: 1
+      },
+      {
+        вопрос: "Какая буква может обозначать в слове два звука?",
+        варианты: ["а) Э", "б) Е", "в) У"],
+        правильный: 1
+      },
+      {
+        вопрос: "Сколько звуков в слове «яма»?",
+        варианты: ["а) три", "б) четыре"],
+        правильный: 1
+      },
+      {
+        вопрос: "Какой из этих согласных глухой?",
+        варианты: ["а) [н]", "б) [ш]", "в) [р]"],
+        правильный: 1
+      },
+      {
+        вопрос: "Какой слог называется ударным?",
+        варианты: [
+          "а) Первый слог в слове",
+          "б) Слог, который произносится с большей силой голоса, чем другие"
+        ],
+        правильный: 1
+      },
+      {
+        вопрос: "В каком слове буква «а» обозначает ударный гласный?",
+        варианты: ["а) травинка", "б) рука", "в) стальной"],
+        правильный: 1
+      },
+      {
+        вопрос: "Сколько значений может иметь слово «ключ»?",
+        варианты: ["а) одно значение", "б) много значений"],
+        правильный: 1
+      },
+      {
+        вопрос: "Что ставится в конце предложения, если оно произносится с сильным чувством?",
+        варианты: ["а) точка", "б) вопросительный знак", "в) восклицательный знак"],
+        правильный: 2
+      }
+    ];
+
+    const размерОбъекта = window.innerWidth <= 640 ? 59 : 85;
+    const панельСчета = document.getElementById("панельСчета");
+    const кнопкаСтарт = document.getElementById("кнопкаСтарт");
+    const окноЗадания = document.getElementById("окноЗадания");
+    const номерВопроса = document.getElementById("номерВопроса");
+    const текстВопроса = document.getElementById("текстВопроса");
+    const вариантыОтветов = document.getElementById("вариантыОтветов");
+    const результатОтвета = document.getElementById("результатОтвета");
+    const кнопкаДальше = document.getElementById("кнопкаДальше");
+    const окноФинала = document.getElementById("окноФинала");
+    const итоговыйТекст = document.getElementById("итоговыйТекст");
+    const кнопкаПовторить = document.getElementById("кнопкаПовторить");
+
+    let верныеОтветы = 0;
+    let отвеченоВопросов = 0;
+    let летающиеОбъекты = [];
+    let выбранныйОбъект = null;
+    let номерТекущегоЗадания = null;
+    let ответВыбран = false;
+    let перваяПопыткаВопроса = true;
+
+    function обновитьСчет() {
+      панельСчета.textContent = `Верно: ${верныеОтветы} из ${задания.length}`;
+    }
+
+    function создатьЛетающийОбъект(номерЗадания) {
+      const объект = document.createElement("div");
+      объект.className = "летающий-объект";
+      объект.dataset.номерЗадания = номерЗадания;
+
+      let x = Math.random() * Math.max(1, window.innerWidth - размерОбъекта);
+      let y = Math.random() * Math.max(1, window.innerHeight - размерОбъекта);
+      let dx = (0.45 + Math.random() * 0.75) * (Math.random() > 0.5 ? 1 : -1);
+      let dy = (0.45 + Math.random() * 0.75) * (Math.random() > 0.5 ? 1 : -1);
+
+      объект.style.left = `${x}px`;
+      объект.style.top = `${y}px`;
+
+      объект.addEventListener("click", () => открытьЗадание(объект, номерЗадания));
+      document.body.appendChild(объект);
+      летающиеОбъекты.push(объект);
+
+      function двигатьОбъект() {
+        if (!document.body.contains(объект)) return;
+
+        x += dx;
+        y += dy;
+
+        if (x <= 0 || x + размерОбъекта >= window.innerWidth) {
+          dx = -dx;
+          объект.classList.toggle("перевернутый");
+          x = Math.max(0, Math.min(window.innerWidth - размерОбъекта, x));
+        }
+
+        if (y <= 0 || y + размерОбъекта >= window.innerHeight) {
+          dy = -dy;
+          y = Math.max(0, Math.min(window.innerHeight - размерОбъекта, y));
+        }
+
+        объект.style.left = `${x}px`;
+        объект.style.top = `${y}px`;
+        requestAnimationFrame(двигатьОбъект);
+      }
+
+      requestAnimationFrame(двигатьОбъект);
+    }
+
+    function открытьЗадание(объект, номерЗадания) {
+      выбранныйОбъект = объект;
+      номерТекущегоЗадания = номерЗадания;
+      ответВыбран = false;
+      перваяПопыткаВопроса = true;
+
+      const задание = задания[номерЗадания];
+      номерВопроса.textContent = `Вопрос ${номерЗадания + 1} из ${задания.length}`;
+      текстВопроса.textContent = задание.вопрос;
+      результатОтвета.textContent = "";
+      кнопкаДальше.style.display = "none";
+      вариантыОтветов.innerHTML = "";
+
+      задание.варианты.forEach((вариант, индекс) => {
+        const кнопка = document.createElement("button");
+        кнопка.className = "кнопка-ответа";
+        кнопка.textContent = вариант;
+        кнопка.addEventListener("click", () => выбратьОтвет(индекс));
+        вариантыОтветов.appendChild(кнопка);
+      });
+
+      объект.style.pointerEvents = "none";
+      окноЗадания.classList.add("показать");
+    }
+
+    function выбратьОтвет(индексОтвета) {
+      if (ответВыбран) return;
+
+      const задание = задания[номерТекущегоЗадания];
+      const кнопки = Array.from(document.querySelectorAll(".кнопка-ответа"));
+      const выбраннаяКнопка = кнопки[индексОтвета];
+
+      if (индексОтвета === задание.правильный) {
+        ответВыбран = true;
+        выбраннаяКнопка.classList.add("верно");
+        кнопки.forEach((кнопка) => {
+          кнопка.disabled = true;
+        });
+
+        if (перваяПопыткаВопроса) {
+          верныеОтветы++;
+        }
+
+        отвеченоВопросов++;
+        обновитьСчет();
+        результатОтвета.textContent = "Верно! Отличная работа!";
+        кнопкаДальше.style.display = "inline-block";
+      } else {
+        перваяПопыткаВопроса = false;
+        выбраннаяКнопка.classList.add("неверно");
+        выбраннаяКнопка.disabled = true;
+        результатОтвета.textContent = "Подумай";
+        кнопкаДальше.style.display = "none";
+      }
+    }
+
+    function закрытьЗадание() {
+      окноЗадания.classList.remove("показать");
+
+      if (выбранныйОбъект) {
+        выбранныйОбъект.classList.add("скрытый-объект");
+        setTimeout(() => {
+          if (выбранныйОбъект && document.body.contains(выбранныйОбъект)) {
+            выбранныйОбъект.remove();
+          }
+          выбранныйОбъект = null;
+        }, 260);
+      }
+
+      if (отвеченоВопросов === задания.length) {
+        setTimeout(показатьФинал, 360);
+      }
+    }
+
+    function показатьФинал() {
+      итоговыйТекст.textContent = `Твой результат: ${верныеОтветы} из ${задания.length}. Ты справился с заданиями!`;
+      кнопкаПовторить.style.display = "inline-block";
+      окноФинала.classList.add("показать");
+    }
+
+    function начатьИгру() {
+      верныеОтветы = 0;
+      отвеченоВопросов = 0;
+      выбранныйОбъект = null;
+      номерТекущегоЗадания = null;
+      ответВыбран = false;
+      перваяПопыткаВопроса = true;
+
+      кнопкаСтарт.style.display = "none";
+      окноФинала.classList.remove("показать");
+      кнопкаПовторить.style.display = "none";
+      панельСчета.style.display = "block";
+      обновитьСчет();
+
+      летающиеОбъекты.forEach((объект) => объект.remove());
+      летающиеОбъекты = [];
+
+      for (let i = 0; i < задания.length; i++) {
+        создатьЛетающийОбъект(i);
+      }
+    }
+
+    кнопкаСтарт.addEventListener("click", начатьИгру);
+    кнопкаДальше.addEventListener("click", закрытьЗадание);
+    кнопкаПовторить.addEventListener("click", начатьИгру);
+  </script>
+</body>
+</html>
